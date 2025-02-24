@@ -1,5 +1,5 @@
-#Project Calculator 
 #This is a simple calculator that can perform basic arithmetic operations.
+#Uses tkinter as possibility to show as app. 
 
 import tkinter as tk
 def add_to_calculation(symbol):
