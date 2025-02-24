@@ -1,0 +1,82 @@
+import requests
+import tkinter as tk
+from tkinter import messagebox
+
+def fetch_weather():
+    city_name = city_entry.get().strip()
+    if not city_name:
+        messagebox.showerror("Chyba", "Prosím zadejte název města.")
+        return
+    
+    api_key = "33555bd73197d2bc290a5306dbe5a016" 
+    url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=metric"
+
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            weather_info = (
+                f"🌍 Počasí v {city_name}:\n"
+                f"🌡️ Teplota: {data['main']['temp']} °C\n"
+                f"🤔 Pocitová Teplota: {data['main']['feels_like']} °C\n"
+                f"💧 Vlhkost: {data['main']['humidity']}%\n"
+                f"☁️ Popis: {data['weather'][0]['description']}"
+            )
+            messagebox.showinfo("Informace o počasí", weather_info)
+        else:
+            messagebox.showerror("Chyba", f"Nepodařilo se získat údaje o počasí pro '{city_name}'.")
+    except Exception as e:
+        messagebox.showerror("Chyba", f"Došlo k chybě: {e}")
+
+
+root = tk.Tk()
+root.title("Počasí Aplikace")
+root.geometry("500x400")
+root.configure(bg="#2B3E50") 
+
+header_label = tk.Label(
+    root, 
+    text="🌤️ Počasí Aplikace", 
+    font=("Helvetica", 24, "bold"), 
+    bg="#2B3E50", 
+    fg="#F7F9FB"
+)
+header_label.pack(pady=20)
+
+city_label = tk.Label(
+    root, 
+    text="Zadejte Město:", 
+    font=("Helvetica", 16), 
+    bg="#2B3E50", 
+    fg="#F7F9FB"
+)
+city_label.pack(pady=10)
+
+city_entry = tk.Entry(root, font=("Helvetica", 14), width=30, bg="#F7F9FB", fg="#2B3E50")
+city_entry.pack(pady=10)
+
+
+fetch_button = tk.Button(
+    root, 
+    text="Získat Počasí", 
+    font=("Helvetica", 16, "bold"), 
+    bg="#1ABC9C",  
+    fg="white", 
+    activebackground="#16A085",  
+    activeforeground="white",
+    command=fetch_weather
+)
+fetch_button.pack(pady=20)
+
+
+footer_label = tk.Label(
+    root, 
+    text="Powered by OpenWeatherMap API", 
+    font=("Helvetica", 10), 
+    bg="#2B3E50", 
+    fg="#95A5A6"
+)
+footer_label.pack(side="bottom", pady=10)
+
+
+root.mainloop()
