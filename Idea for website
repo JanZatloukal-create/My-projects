@@ -1,0 +1,308 @@
+from flask import Flask, render_template_string
+import random
+
+app = Flask(__name__)
+
+komplimenty = [
+    "Jsi nejkrásnější žena na světě😍",
+    "Jsi nejlepší přítelkyně na světe😘",
+    "Děláš mě pyšným každý den🥹",
+    "Tvůj smysl pro humor je sice totálně mimo, ale pořád se s tebou zasměju jako s nikým😂💕",
+    "Máš krásné hnědé oči👀",
+    "Jsi velmi chytrá💕",
+    "Když jsem s tebou, tak můžu vypnout hlavu a soustředit se jen na tebe😍",
+    "Miluju když bojuješ s brčkem😜💕",
+    "Máš nejlepšího přítele na světě😏💕",
+    "Cením si tvé upřímnosti😇",
+    "Miluju když mluvíš o něčem co tě zajímá a jsi do toho 'zažraná'😍",
+    "Zbožňuju když drbeme ostatní🫖💕",
+    "Jsi správnej parťák do života😘",
+    "Obdivuju jak se dokážeš poprat s tatarákem a vždycky zvítězit🙃🥰",
+    "Miluju poslouchat tvoje chrupkání😴😍",
+    "BUNDA😍",
+    "BUNDA😍😍😍😍",
+    "MAČÁČAS😍😍",
+    "MAČÁČAS😍😍😍😍😍",
+    "Děláš mi velkou radost🥹💕"
+]
+
+index_template = """
+<!DOCTYPE html>
+<html lang='cs'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Pro Týnušku</title>
+    <style>
+        body {
+            background-color: pink;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        .content {
+            text-align: center;
+            max-width: 80%;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #ff1493;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #333;
+            font-size: 18px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        .highlight {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #fff;
+            border: 2px solid #ff69b4;
+            border-radius: 10px;
+            color: #ff1493;
+            font-weight: bold;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 24px;
+            background-color: #ff69b4;
+            border: 2px solid #ff1493;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background-color: #ff1493;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Čauky</h1>
+        <p>Tato stránka slouží pouze pro Kristiánku Ferencovou a pro nikoho jinýho.</p>
+        <p>Pokud se jmenuješ Kristiánka Ferencová, stiskni na pokračovat.</p>
+        <p>Pokud ne, stiskni na Odejít.</p>
+    </div>
+    <div class="button-container">
+        <button onclick="location.href='/komplimenty'">Pokračovat</button>
+        <button onclick="location.href='/leave'">Odejít</button>
+    </div>
+</body>
+</html>
+"""
+
+
+komplimenty_template = """
+<!DOCTYPE html>
+<html lang='cs'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Zamilovaná stránka s komplimenty</title>
+    <style>
+        body {
+            background-color: pink;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        h1 {
+            color: #ff1493;
+            font-size: 24px;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            max-width: 80%;
+        }
+        #kompliment-container {
+            position: relative;
+            width: 80%;
+            height: 60vh;
+            overflow: hidden;
+            border: 2px dashed #ff1493;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            padding: 1cm; /* Přidán padding 1cm */
+            box-sizing: border-box; /* Zajistí, že padding je započítán do celkové šířky/výšky */
+        }
+        #button-container {
+            margin-top: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 24px;
+            background-color: #ff69b4;
+            border: 2px solid #ff1493;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background-color: #ff1493;
+            transform: scale(1.1);
+        }
+        .kompliment {
+            position: absolute;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            animation: fadeInOut 3s ease-in-out;
+            opacity: 0;
+            padding: 15px;
+            text-align: center;
+            max-width: calc(100% - 2cm); /* Upraveno pro zohlednění paddingu */
+            word-wrap: break-word;
+            background-color: rgba(255, 105, 180, 0.7);
+            border: 3px solid #ff1493;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.5);
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20%, 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Tady je pár věcí které na tobě miluju, vždy když budeš chtít, stačí stisknou tlačítko níže.</h1>
+    <div id="kompliment-container"></div>
+    <div id="button-container">
+        <button onclick="zobrazKompliment()">Stiskni mě</button>
+    </div>
+
+    <script>
+        let komplimenty = {{ komplimenty|tojson|safe }};
+        let aktualniIndex = 0;
+        
+        function zamichejKomplimenty() {
+            for (let i = komplimenty.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [komplimenty[i], komplimenty[j]] = [komplimenty[j], komplimenty[i]];
+            }
+        }
+        
+        zamichejKomplimenty();
+        
+        function zobrazKompliment() {
+            const kompliment = document.createElement('div');
+            kompliment.classList.add('kompliment');
+            
+            kompliment.textContent = komplimenty[aktualniIndex];
+            
+            const fontSize = Math.random() * (24 - 18) + 18;
+            kompliment.style.fontSize = `${fontSize}px`;
+            
+            const container = document.getElementById('kompliment-container');
+            container.appendChild(kompliment);
+            
+            const containerRect = container.getBoundingClientRect();
+            
+            const maxWidth = containerRect.width - 2 * parseFloat(getComputedStyle(container).paddingLeft);
+            const maxHeight = containerRect.height - 2 * parseFloat(getComputedStyle(container).paddingTop);
+            
+            kompliment.style.maxWidth = `${maxWidth * 0.8}px`;
+            kompliment.style.maxHeight = `${maxHeight * 0.8}px`;
+            
+            const komplimentRect = kompliment.getBoundingClientRect();
+            
+            const maxOffsetX = (maxWidth - komplimentRect.width) / 2;
+            const maxOffsetY = (maxHeight - komplimentRect.height) / 2;
+            
+            const offsetX = (Math.random() - 0.5) * maxOffsetX * 2;
+            const offsetY = (Math.random() - 0.5) * maxOffsetY * 2;
+            
+            kompliment.style.left = `${maxWidth / 2 + offsetX + parseFloat(getComputedStyle(container).paddingLeft)}px`;
+            kompliment.style.top = `${maxHeight / 2 + offsetY + parseFloat(getComputedStyle(container).paddingTop)}px`;
+            kompliment.style.transform = 'translate(-50%, -50%)';
+            
+            setTimeout(() => {
+                kompliment.remove();
+            }, 3000);
+            
+            aktualniIndex++;
+            if (aktualniIndex >= komplimenty.length) {
+                aktualniIndex = 0;
+                zamichejKomplimenty();
+            }
+        }
+    </script>
+</body>
+</html>
+"""
+
+leave_template = """
+<!DOCTYPE html>
+<html lang='cs'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Odejít</title>
+    <style>
+        body {
+            background-color: pink;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #ff1493;
+            font-size: 36px;
+            text-align: center;
+        }
+        p {
+            color: #ff69b4;
+            font-size: 24px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tady nemáš co dělat.</h1>
+    <p>Honzík nevěděl co jinýho tady napsat, #honzik_was_here</p>
+</body>
+</html>
+"""
+
+
+@app.route('/')
+def index():
+    return render_template_string(index_template)
+
+@app.route('/komplimenty')
+def komplimenty_route():
+    return render_template_string(komplimenty_template, komplimenty=komplimenty)
+
+@app.route('/leave')
+def leave():
+    return render_template_string(leave_template)
+
+if __name__ == '__main__':
+    app.run(debug=True)
